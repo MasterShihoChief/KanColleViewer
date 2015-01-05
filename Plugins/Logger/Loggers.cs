@@ -95,8 +95,6 @@ namespace Logger
 
 		#endregion
 
-		public readonly string LogTimestampFormat = "yyyy-MM-dd HH:mm:ss";
-
 		public void Log(string format, params object[] args)
 		{
 			try
@@ -133,6 +131,11 @@ namespace Logger
 
 			LoggerPreferences.SetValue("Enabled", Enabled.ToString());
 		}
+
+		public string TimestampISO()
+		{
+			return DateTime.UtcNow.ToString("o");
+		}
 	}
 
 	public class ItemLog : LoggerBase
@@ -150,7 +153,7 @@ namespace Logger
 		{
 			if (!this.Enabled) return;
 			Log("{0},{1},{2},{3},{4},{5},{6}",
-				DateTime.Now.ToString(this.LogTimestampFormat),
+				this.TimestampISO(),
 				item.api_create_flag == 1 ? KanColleClient.Current.Master.SlotItems[item.api_slot_item.api_slotitem_id].Name : "Penguin",
 				KanColleClient.Current.Homeport.Organization.Fleets[1].Ships[0].Info.ShipType.Name,
 				req["api_item1"], req["api_item2"], req["api_item3"], req["api_item4"]);
@@ -189,7 +192,7 @@ namespace Logger
 		{
 			foreach (var dock in docks.Where(dock => this.waitingForShip && dock.api_id == this.dockid))
 			{
-				this.Log("{0},{1},{2},{3},{4},{5},{6}", DateTime.Now.ToString(this.LogTimestampFormat), KanColleClient.Current.Master.Ships[dock.api_created_ship_id].Name, this.shipmats[0], this.shipmats[1], this.shipmats[2], this.shipmats[3], this.shipmats[4]);
+				this.Log("{0},{1},{2},{3},{4},{5},{6}", this.TimestampISO(), KanColleClient.Current.Master.Ships[dock.api_created_ship_id].Name, this.shipmats[0], this.shipmats[1], this.shipmats[2], this.shipmats[3], this.shipmats[4]);
 				this.waitingForShip = false;
 			}
 		}
@@ -211,7 +214,7 @@ namespace Logger
 			if (br.api_get_ship == null)
 				return;
 
-			Log("{0},{1},{2},{3},{4}", DateTime.Now.ToString(this.LogTimestampFormat),
+			Log("{0},{1},{2},{3},{4}", this.TimestampISO(),
 				KanColleClient.Current.Translations.GetTranslation(br.api_get_ship.api_ship_name, TranslationType.Ships, br),
 				KanColleClient.Current.Translations.GetTranslation(br.api_quest_name, TranslationType.OperationMaps, br),
 				KanColleClient.Current.Translations.GetTranslation(br.api_enemy_info.api_deck_name, TranslationType.OperationSortie, br),
@@ -226,9 +229,9 @@ namespace Logger
 			proxy.api_get_member_material.TryParse<kcsapi_material[]>().Subscribe(x => this.MaterialsHistory(x.Data));
 			proxy.api_req_hokyu_charge.TryParse<kcsapi_charge>().Subscribe(x => this.MaterialsHistory(x.Data.api_material));
 			proxy.api_req_kousyou_destroyship.TryParse<kcsapi_destroyship>().Subscribe(x => this.MaterialsHistory(x.Data.api_material));
-			this.Text = "Development";
-			this.Filename = "DevelopmentLog.csv";
-			this.LoggerName = "Development";
+			this.Text = "Materials";
+			this.Filename = "MaterialsExpenditureLog.csv";
+			this.LoggerName = "Materials";
 			this.LoadSettings();
 		}
 
@@ -238,7 +241,7 @@ namespace Logger
 				return;
 
 			Log("{0},{1},{2},{3},{4},{5},{6},{7}",
-				DateTime.Now.ToString(this.LogTimestampFormat),
+				this.TimestampISO(),
 				source[0].api_value, source[1].api_value, source[2].api_value, source[3].api_value, source[6].api_value, source[5].api_value, source[4].api_value);
 		}
 
@@ -248,7 +251,7 @@ namespace Logger
 				return;
 
 			Log("{0},{1},{2},{3},{4},{5},{6},{7}",
-				DateTime.Now.ToString(this.LogTimestampFormat),
+				this.TimestampISO(),
 				source[0], source[1], source[2], source[3],
 				KanColleClient.Current.Homeport.Materials.DevelopmentMaterials,
 				KanColleClient.Current.Homeport.Materials.InstantRepairMaterials,
